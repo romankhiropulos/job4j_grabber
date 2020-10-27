@@ -4,6 +4,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.model.Post;
+import ru.job4j.grabber.parser.Parse;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -13,9 +15,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class SqlRuParse {
+public class SqlRuParse implements Parse {
 
     private static final String URL = "https://www.sql.ru/forum/job-offers";
+
+//    Этот компонент позволяет собрать короткое описание всех объявлений,
+//    а так же загрузить детали по каждому объявлению.
+
+//    list(link) - этот метод загружает список объявлений по ссылке типа
+//    - https://www.sql.ru/forum/job-offers/1
+    @Override
+    public List<Post> list(String link) {
+        return null;
+    }
+
+//    detail(link) - этот метод загружает детали объявления по ссылке типа
+//    - https://www.sql.ru/forum/1323839/razrabotchik-java-g-kazan
+    @Override
+    public Post detail(String link) {
+        return null;
+    }
 
     private List<Elements> preparePageRows(int numberOfPages) throws IOException {
         List<Elements> result = new ArrayList<>();
