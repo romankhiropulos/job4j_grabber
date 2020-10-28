@@ -6,6 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.model.Post;
 import ru.job4j.grabber.parser.Parse;
+import ru.job4j.grabber.util.DateUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -59,51 +60,10 @@ public class SqlRuParse implements Parse {
                         href.childNode(1).attr("href")
                                 .concat("\n")
                                 .concat(href.childNode(1).childNode(0).toString()));
-                LocalDateTime dateTime = convertDate(date.text());
+                LocalDateTime dateTime = DateUtils.parseSqlRuDate(date.text());
                 System.out.println((dateTime == null ? "" : dateTime) + "\n");
             }
         }));
-    }
-
-    private LocalDateTime convertDate(String jsoupDate) {
-        LocalDateTime result;
-        if (!Objects.equals(jsoupDate, "")) {
-            result = LocalDateTime.now();
-            int inputSize = jsoupDate.length();
-            List<String> shortMonths = new ArrayList<>(Arrays.asList(
-                    "янв", "фев", "мар", "апр", "май", "июн",
-                    "июл", "авг", "сен", "окт", "ноя", "дек"));
-            int minute = Integer.parseInt(jsoupDate.substring(inputSize - 2));
-            int hour = Integer.parseInt(jsoupDate.substring(inputSize - 5, inputSize - 3));
-            if (jsoupDate.startsWith("вчера")) {
-                result = LocalDateTime.of(result.getYear(), result.getMonth(),
-                        result.getDayOfMonth() - 1,
-                        hour,
-                        minute);
-            } else if (jsoupDate.startsWith("сегодня")) {
-                result = LocalDateTime.of(result.getYear(), result.getMonth(),
-                        result.getDayOfMonth(),
-                        hour,
-                        minute);
-            } else {
-                int day;
-                if (jsoupDate.charAt(1) == ' ') {
-                    day = Integer.parseInt(jsoupDate.substring(0, 1));
-                } else {
-                    day = Integer.parseInt(jsoupDate.substring(0, 2));
-                }
-                int year = 2000 + Integer.parseInt(
-                        jsoupDate.substring(inputSize - 9, inputSize - 7)
-                );
-                Month month = Month.of(
-                        shortMonths.indexOf(jsoupDate.substring(inputSize - 13, inputSize - 10)) + 1
-                );
-                result = LocalDateTime.of(year, month, day, hour, minute);
-            }
-        } else {
-            return null;
-        }
-        return result;
     }
 
     public static void runSqlParse() {
