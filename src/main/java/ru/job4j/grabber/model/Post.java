@@ -32,6 +32,10 @@ public class Post {
         this.created = created;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -62,6 +66,42 @@ public class Post {
 
     public void setCreated(LocalDateTime created) {
         this.created = created;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Post post = (Post) o;
+
+        if (!id.equals(post.id)) {
+            return false;
+        }
+        if (!name.equals(post.name)) {
+            return false;
+        }
+        if (!text.equals(post.text)) {
+            return false;
+        }
+        if (!link.equals(post.link)) {
+            return false;
+        }
+        return created.equals(post.created);
+//        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + text.hashCode();
+        result = 31 * result + link.hashCode();
+//        result = 31 * result + created.hashCode();
+        return result;
     }
 
     @Override
