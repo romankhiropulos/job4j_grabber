@@ -2,6 +2,7 @@ package ru.job4j.grabber.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 public class Post {
@@ -61,5 +62,19 @@ public class Post {
 
     public void setCreated(LocalDateTime created) {
         this.created = created;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner("")
+                .add("Вакансия: " + name)
+                .add("\n \n")
+                .add(text)
+                .add("\n \n")
+                .add("Ссылка: " + link)
+                .add("\n")
+                .add("Дата публикации: " + created.toString())
+                .add("\n")
+                .toString();
     }
 }
