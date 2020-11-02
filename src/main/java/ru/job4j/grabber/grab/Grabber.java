@@ -4,6 +4,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import ru.job4j.grabber.SqlRuParse;
 import ru.job4j.grabber.parser.Parse;
+import ru.job4j.grabber.storage.PsqlStore;
 import ru.job4j.grabber.storage.Store;
 
 import java.io.*;
@@ -17,7 +18,7 @@ public class Grabber implements Grab {
     private final Properties cfg = new Properties();
 
     public Store store() {
-        return null;
+        return new PsqlStore(cfg);
     }
 
     public Scheduler scheduler() throws SchedulerException {
@@ -27,7 +28,7 @@ public class Grabber implements Grab {
     }
 
     public void cfg() throws IOException {
-        try (InputStream in = new FileInputStream(new File("app.properties"))) {
+        try (InputStream in = new FileInputStream(new File("rabbit.properties"))) {
             cfg.load(in);
         }
     }
@@ -41,7 +42,7 @@ public class Grabber implements Grab {
                 .usingJobData(data)
                 .build();
         SimpleScheduleBuilder times = simpleSchedule()
-                .withIntervalInSeconds(Integer.parseInt(cfg.getProperty("time")))
+                .withIntervalInSeconds(Integer.parseInt(cfg.getProperty("rabbit.interval")))
                 .repeatForever();
         Trigger trigger = newTrigger()
                 .startNow()
@@ -56,8 +57,9 @@ public class Grabber implements Grab {
         public void execute(JobExecutionContext context) throws JobExecutionException {
             JobDataMap map = context.getJobDetail().getJobDataMap();
             Store store = (Store) map.get("store");
-            Parse parse = (Parse) map.get("store");
+            Parse parse = (Parse) map.get("parse");
             //TODO impl logic
+//            Программа должно считывать все вакансии относящие к Java и записывать их в базу.
         }
     }
 

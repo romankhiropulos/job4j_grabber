@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class DateUtils {
+    private static final List<String> SHORT_MONTHS = new ArrayList<>(Arrays.asList(
+            "янв", "фев", "мар", "апр", "май", "июн",
+            "июл", "авг", "сен", "окт", "ноя", "дек"));
+
     public static LocalDateTime parseSqlRuDate(String jsoupDate) {
         LocalDateTime result;
         if (!Objects.equals(jsoupDate, "")) {
             result = LocalDateTime.now();
             int inputSize = jsoupDate.length();
-            List<String> shortMonths = new ArrayList<>(Arrays.asList(
-                    "янв", "фев", "мар", "апр", "май", "июн",
-                    "июл", "авг", "сен", "окт", "ноя", "дек"));
             int minute = Integer.parseInt(jsoupDate.substring(inputSize - 2));
             int hour = Integer.parseInt(jsoupDate.substring(inputSize - 5, inputSize - 3));
             if (jsoupDate.startsWith("вчера")) {
@@ -39,7 +40,8 @@ public class DateUtils {
                         jsoupDate.substring(inputSize - 9, inputSize - 7)
                 );
                 Month month = Month.of(
-                        shortMonths.indexOf(jsoupDate.substring(inputSize - 13, inputSize - 10)) + 1
+                        SHORT_MONTHS.indexOf(
+                                jsoupDate.substring(inputSize - 13, inputSize - 10)) + 1
                 );
                 result = LocalDateTime.of(year, month, day, hour, minute);
             }

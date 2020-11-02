@@ -39,7 +39,7 @@ public class AlertRabbit {
                 .getClassLoader().getResourceAsStream("rabbit.properties")) {
             config = new Properties();
             config.load(in);
-            Class.forName(config.getProperty("driver-class-name"));
+            Class.forName(config.getProperty("rabbit.driver"));
 
         } catch (Exception e) {
             throw new IllegalStateException(e);
