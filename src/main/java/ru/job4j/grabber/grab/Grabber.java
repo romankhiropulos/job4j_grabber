@@ -8,6 +8,8 @@ import ru.job4j.grabber.storage.PsqlStore;
 import ru.job4j.grabber.storage.Store;
 
 import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,6 +20,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Grabber implements Grab {
 
     private static final String SQL_RU_URL = "https://www.sql.ru/forum/job-offers/1";
+    private static final String OK_CODE = "HTTP/1.1 200 OK\r\n\\";
+    private static final String CLOSE_CODE = "GET /?msg=Buy HTTP/1.1";
 
     private final Properties cfg = new Properties();
 
@@ -57,6 +61,40 @@ public class Grabber implements Grab {
         scheduler.scheduleJob(job, trigger);
     }
 
+    public void web(Store store) {
+        new Thread(() -> {
+            try (ServerSocket server = new ServerSocket(
+                    Integer.parseInt(cfg.getProperty("rabbit.port"))
+            )) {
+                outer:
+                while (!server.isClosed()) {
+                    Socket socket = server.accept();
+                    try (OutputStream out = socket.getOutputStream();
+                         BufferedReader in = new BufferedReader(
+                                 new InputStreamReader(socket.getInputStream()))) {
+                        String str = in.readLine();
+                        while (!str.isEmpty()) {
+                            if (str.contains(CLOSE_CODE)) {
+                                break outer;
+                            }
+                            System.out.println(str);
+                            str = in.readLine();
+                        }
+                        out.write(OK_CODE.getBytes());
+                        for (Post post : store.getAll()) {
+                            out.write(post.toString().getBytes());
+                            out.write(System.lineSeparator().getBytes());
+                        }
+                    } catch (IOException io) {
+                        io.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     public static void main(String[] args) throws Exception {
         Grabber grab = new Grabber();
         grab.cfg();
@@ -64,6 +102,7 @@ public class Grabber implements Grab {
         Store store = grab.store();
         Parse parse = new SqlRuParse();
         grab.init(parse, store, scheduler);
+        grab.web(store);
 
         try {
             Thread.sleep(10000);
