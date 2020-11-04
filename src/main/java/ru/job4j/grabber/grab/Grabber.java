@@ -66,7 +66,7 @@ public class Grabber implements Grab {
             try (ServerSocket server = new ServerSocket(
                     Integer.parseInt(cfg.getProperty("rabbit.port"))
             )) {
-                outer:
+                boolean closeCheck = false;
                 while (!server.isClosed()) {
                     Socket socket = server.accept();
                     try (OutputStream out = socket.getOutputStream();
@@ -75,10 +75,14 @@ public class Grabber implements Grab {
                         String str = in.readLine();
                         while (!str.isEmpty()) {
                             if (str.contains(CLOSE_CODE)) {
-                                break outer;
+                                closeCheck = true;
+                                break;
                             }
                             System.out.println(str);
                             str = in.readLine();
+                        }
+                        if (closeCheck) {
+                            break;
                         }
                         out.write(OK_CODE.getBytes());
                         for (Post post : store.getAll()) {
